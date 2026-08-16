@@ -123,9 +123,10 @@
   // ── 5. 미사용 휴무 수당 계산기 ────────────────────────────────────
   // 앱이 실제로 쓰는 식과 같다:
   //   미사용 = max(0, 그달 휴무일 − '휴무'로 찍은 날)
-  //   수당   = 미사용 × 1일 소정근로시간 × 시급 × 1.5
+  //   수당   = 미사용 × (소정근로시간 × 시급 × 1.5 + 야간시간 × 시급 × 0.5)
+  // 야간분은 앱이 프로필의 근무시간대에서 자동으로 뽑는다. 여기서는 직접 넣는다.
   const OUT = $('#cOut')
-  const inputs = ['cWage', 'cHours', 'cOfficial', 'cUsed'].map((id) => $('#' + id))
+  const inputs = ['cWage', 'cHours', 'cNight', 'cOfficial', 'cUsed'].map((id) => $('#' + id))
 
   const won = (n) => Math.round(n).toLocaleString('ko-KR') + '원'
   const num = (el, min, max) => {
@@ -136,27 +137,33 @@
 
   const render = () => {
     if (!OUT) return
-    const [wageEl, hoursEl, officialEl, usedEl] = inputs
+    const [wageEl, hoursEl, nightEl, officialEl, usedEl] = inputs
     const wage = num(wageEl, 0, 10_000_000)
     const hours = num(hoursEl, 0, 24)
+    // 야간은 소정근로 안에 들어 있는 시간이다. 소정근로보다 클 수 없다.
+    const night = Math.min(num(nightEl, 0, 24), hours)
     const official = num(officialEl, 0, 31)
     const used = num(usedEl, 0, 31)
 
-    const daily = hours * wage // 1일치 (기본급분)
     const unused = Math.max(0, official - used)
-    const pay = unused * daily * 1.5
+    const dayBase = hours * wage * 1.5 // 하루치 · 1.5배
+    const dayNight = night * wage * 0.5 // 하루치 야간가산
+    const perDay = dayBase + dayNight
+    const pay = unused * perDay
 
     const rows = [
-      ['1일치 (소정근로 ' + hours + '시간 × 시급)', won(daily)],
-      ['미사용 휴무 (' + official + '일 − ' + used + '일)', unused + '일'],
+      ['소정근로 ' + hours + '시간 × 시급 × 1.5', won(dayBase)],
     ]
+    if (night > 0) rows.push(['야간 ' + night + '시간 × 시급 × 0.5', won(dayNight)])
+    rows.push(['하루치', won(perDay)])
+    rows.push(['미사용 휴무 (' + official + '일 − ' + used + '일)', unused + '일'])
 
     OUT.innerHTML =
       rows.map(([k, v]) => `<span class="r"><span>${k}</span><span>${v}</span></span>`).join('') +
       `<span class="r r--total"><span>미사용 휴무 수당</span><b>${won(pay)}</b></span>` +
       (unused === 0
         ? '<span class="msg msg--zero">쉰 날을 전부 찍으셨습니다. 붙는 수당이 없는 게 정상입니다.</span>'
-        : `<span class="msg">${unused}일 × ${won(daily)} × 1.5 배. 이 ${unused}일을 실제로 쉬었다면 달력에서 <b>휴무</b>로 찍어야 이 금액이 사라집니다.</span>`)
+        : `<span class="msg">${unused}일 × ${won(perDay)}. 이 ${unused}일을 실제로 쉬었다면 달력에서 <b>휴무</b>로 찍어야 이 금액이 사라집니다.</span>`)
   }
 
   inputs.forEach((el) => el?.addEventListener('input', render))

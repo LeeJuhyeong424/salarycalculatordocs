@@ -444,6 +444,18 @@ code {
 .note--good { border-color: var(--good-line); border-left-color: var(--good); background: var(--good-bg); }
 .note--good .note__h { color: var(--good); }
 
+/* 숫자로 든 예시 — 본문과 섞이지 않게 한 칸 들여 고정폭으로 */
+.note__eg {
+  margin: .7rem 0;
+  padding: .65rem .8rem;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--code-bg, var(--bg));
+  font-family: var(--mono);
+  font-size: .8125rem !important;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
 /* 접히는 설명 */
 .why { margin-top: .75rem; }
 .why summary {

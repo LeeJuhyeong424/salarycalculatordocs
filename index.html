@@ -260,7 +260,8 @@
       <figure class="formula">
         <pre><code>그달 휴무일 (주말 + 공휴일)  −  '휴무'로 찍은 날  =  미사용 휴무
 
-미사용 휴무 × 1일 소정근로시간 × 시급 × 1.5  =  미사용 휴무 수당</code></pre>
+미사용 휴무 × ( 1일 소정근로시간 × 시급 × 1.5
+              + 야간 시간 × 시급 × 0.5 )  =  미사용 휴무 수당</code></pre>
       </figure>
 
       <p>
@@ -268,6 +269,21 @@
         수당이 실제보다 훨씬 크게 나옵니다. 급여 화면의 「미사용 휴무」 일수가
         실제로 반납한 휴무 수와 맞는지 꼭 확인하세요.
       </p>
+
+      <div class="note">
+        <p class="note__h">야간 근무자는 야간수당이 같이 붙습니다</p>
+        <p>
+          못 쉰 휴무 하루는 <b>「하루 일한 것」으로 환산</b>하는 항목입니다.
+          그래서 근무시간대가 밤 10시~새벽 6시에 걸치는 분은 그 시간만큼
+          야간가산 0.5배가 같이 붙습니다. 휴게시간은 빠집니다.
+        </p>
+        <p class="note__eg">
+          예) 16:00~01:00 · 휴게 21:00~22:00 · 시급 10,320원 → 야간 3시간<br>
+          8시간 × 10,320 × 1.5 = 123,840원 <b>+</b> 3시간 × 10,320 × 0.5 = 15,480원
+          <b>= 하루 139,320원</b>
+        </p>
+        <p>낮에만 일하는 분은 야간이 0시간이라 달라지는 것이 없습니다.</p>
+      </div>
 
       <!-- 계산기 -->
       <div class="calc" id="calc">
@@ -281,6 +297,9 @@
           <label>1일 소정근로 <span>시간</span>
             <input type="number" id="cHours" value="8" min="0" max="24" step="0.5" inputmode="decimal">
           </label>
+          <label>그중 야간 (22~06시) <span>시간</span>
+            <input type="number" id="cNight" value="0" min="0" max="24" step="0.5" inputmode="decimal">
+          </label>
           <label>그달 휴무일 <span>일</span>
             <input type="number" id="cOfficial" value="11" min="0" max="31" step="1" inputmode="numeric">
           </label>
@@ -289,7 +308,7 @@
           </label>
         </div>
 
-        <output class="calc__out" id="cOut" for="cWage cHours cOfficial cUsed"></output>
+        <output class="calc__out" id="cOut" for="cWage cHours cNight cOfficial cUsed"></output>
       </div>
 
       <div class="note">
